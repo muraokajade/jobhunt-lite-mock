@@ -93,3 +93,20 @@ export type DashboardSummary = {
   rejected: number;
   highPriority: number;
 };
+
+//これどこだ？
+export type DashboardActionLists = {
+  interview: Company[];
+  waiting: Company[];
+  highPriority: Company[];
+};
+
+export type ActionListsProps = {
+  dashboardActionLists?: DashboardActionLists;
+  onOpenDetail: (company: Company) => void;
+};
+export type AuthUser = {
+  id: number;
+  name: string;
+  email: string;
+};

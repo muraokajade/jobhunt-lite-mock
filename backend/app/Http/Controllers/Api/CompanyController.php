@@ -8,6 +8,7 @@ use App\Models\Company;
 use App\Http\Resources\CompanyResource;
 use App\Http\Requests\StoreCompanyRequest;
 use App\Http\Requests\updateCompanyRequest;
+use Illuminate\Support\Facades\Auth;
 
 class CompanyController extends Controller
 {
@@ -61,7 +62,8 @@ class CompanyController extends Controller
 
         // 検索条件を後から追加するため、まずCompany検索の土台を作る
         // この時点ではまだDBから取得していない
-        $query = Company::query();
+        $query = Company::query()
+            ->where('user_id', Auth::id());
 
         // keyword がURLに含まれている場合だけ、企業名・メモの検索条件を追加する
         if ($request->filled('keyword')) {
@@ -113,6 +115,8 @@ class CompanyController extends Controller
     {
         $validated = $request->validated();
 
+        $validated['user_id'] = Auth::id();
+
         $company = Company::create($validated);
 
         return new CompanyResource($company);
@@ -131,6 +135,7 @@ class CompanyController extends Controller
      */
     public function update(updateCompanyRequest $request, Company $company)
     {
+        abort_unless($company->user_id === Auth::id(), 403);
         $validated = $request->validated();
 
         $company->update($validated);
@@ -143,6 +148,7 @@ class CompanyController extends Controller
      */
     public function destroy(Company $company)
     {
+        abort_unless($company->user_id === Auth::id(), 403);
         $company->delete();
 
         return response()->json([
@@ -151,6 +157,7 @@ class CompanyController extends Controller
     }
     public function toggleFavorite(Company $company)
     {
+        abort_unless($company->user_id === Auth::id(), 403);
         $company->is_favorite = ! (bool) $company->is_favorite;
 
         $company->save();
